@@ -1,0 +1,7 @@
+
+Create a web service allowing user login with 3rd party Oauth.
+
+It allow user to create a private key and used for client application to encrypte file with. 
+The private is password protected and store in our service. 
+
+
