@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
 
 public class sketchUI extends Activity
 {
@@ -58,6 +59,10 @@ public class sketchUI extends Activity
         } catch (NoSuchAlgorithmException e) { 
             Log.e(TAG, "No Algorithum exception", e);
         }
+        
+        String uuid = UUID.randomUUID().toString();
+        
+        Log.v(TAG,"uuid = " + uuid);
 
     }
 }
