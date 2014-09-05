@@ -4,10 +4,26 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Hello World, sketchUI"
-    />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World, sketchUI"
+        />
+    <TextView
+        android:id="@+id/original_tv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+    <TextView
+        android:id="@+id/encoded_tv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+    <TextView
+        android:id="@+id/decoded_tv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+        
 </LinearLayout>
 
