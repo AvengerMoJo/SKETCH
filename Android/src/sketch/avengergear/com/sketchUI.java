@@ -10,6 +10,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
 
+
+
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
@@ -98,6 +100,12 @@ public class sketchUI extends Activity
         } catch (NoSuchAlgorithmException e) { 
             Log.e(TAG, "No Algorithum exception", e);
         }
+        Log.v(TAG, "Start Clipboard service");
+        Intent i= new Intent(this, ClipboardHelper.class);
+        // serviceIntent.setAction("ClipboardHelper");
+        startService(i);
+        Log.v(TAG, "Clipboard service started");
     }
+
 }
 
