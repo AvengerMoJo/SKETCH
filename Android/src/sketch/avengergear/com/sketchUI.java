@@ -10,8 +10,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
 
-
-
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
@@ -33,10 +31,8 @@ import java.util.UUID;
 public class sketchUI extends Activity
 {
     private static final String TAG = "SKETCH-UI";
-
-    static {
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-    }
+    private KeyManager keyManager; 
+    private CipherHelper cipherHelper;
 
     /** Called when the activity is first created. */
     @Override
@@ -45,64 +41,33 @@ public class sketchUI extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        try { 
-            // Create the public and private keys
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "SC");
+        keyManager = new KeyManager(); 
+        keyManager.createKeyPair(); 
 
-            SecureRandom random = new SecureRandom();
-            generator.initialize(2048, random);
-            KeyPair keyPair = generator.genKeyPair();
+        cipherHelper = new CipherHelper( keyManager.getPrivateKey(), keyManager.getPublicKey() ); 
 
-            //PrivateKey privateKey = keyPair.getPrivate().getEncoded();
-            //PublicKey publicKey  = keyPair.getPublic().getEncoded();
-            PrivateKey privateKey = keyPair.getPrivate();
-            PublicKey publicKey  = keyPair.getPublic();
+        String testText = "Avenger testing the MoJo";
+        TextView original_textview = (TextView)findViewById(R.id.original_tv);
+        original_textview.setText("[ORIGINAL]:\n" + testText + "\n");
 
-            Log.v(TAG, keyPair.getPrivate().toString() );
+        // Encode the original data with RSA public key
+        byte[] encoded = cipherHelper.encodeBytes(testText.getBytes()); 
 
-            String uuid = UUID.randomUUID().toString();
-            
-            Log.v(TAG,"uuid = " + uuid);
+        TextView encoded_textview = (TextView)findViewById(R.id.encoded_tv);
+        encoded_textview.setText("[ENCODED]:\n" + 
+        Base64.encodeToString(encoded, Base64.DEFAULT) + "\n");
 
-            String testText = "Avenger testing the MoJo";
-            TextView original_textview = (TextView)findViewById(R.id.original_tv);
-            original_textview.setText("[ORIGINAL]:\n" + testText + "\n");
+        // Decode the encoded data with RSA public key
+        byte[] decoded = cipherHelper.decodeBytes(encoded);
 
-            // Encode the original data with RSA public key
-            byte[] encoded = null;
-            try {
-                Cipher rsa_cipher = Cipher.getInstance("RSA/None/PKCS1Padding", "SC");
-                rsa_cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-                encoded = rsa_cipher.doFinal(testText.getBytes());
-            } catch (Exception e) {
-                Log.e(TAG, "RSA encryption error", e);
-            }
+        TextView decoded_textview = (TextView)findViewById(R.id.decoded_tv);
+        decoded_textview.setText("[DECODED]:\n" + new String(decoded) + "\n");
 
-            TextView encoded_textview = (TextView)findViewById(R.id.encoded_tv);
-            encoded_textview.setText("[ENCODED]:\n" + 
-            Base64.encodeToString(encoded, Base64.DEFAULT) + "\n");
+        TextView sim_textview = (TextView)findViewById(R.id.sim_tv); 
+        sim_textview.setText("[SIM]:\n" + keyManager.getCreateUUID( this.getApplicationContext()) + "\n");  
 
-            // Decode the encoded data with RSA public key
-            byte[] decoded = null;
-            try {
-                Cipher rsa_cipher = Cipher.getInstance("RSA/None/PKCS1Padding", "SC");
-                rsa_cipher.init(Cipher.DECRYPT_MODE, privateKey);
-                decoded= rsa_cipher.doFinal(encoded);
-            } catch (Exception e) {
-                Log.e(TAG, "RSA decryption error", e);
-            }
-            TextView decoded_textview = (TextView)findViewById(R.id.decoded_tv);
-            decoded_textview.setText("[DECODED]:\n" + new String(decoded) + "\n");
-
-
-        } catch (NoSuchProviderException e) {
-            Log.e(TAG, "No provider exception", e);
-        } catch (NoSuchAlgorithmException e) { 
-            Log.e(TAG, "No Algorithum exception", e);
-        }
         Log.v(TAG, "Start Clipboard service");
         Intent i= new Intent(this, ClipboardHelper.class);
-        // serviceIntent.setAction("ClipboardHelper");
         startService(i);
         Log.v(TAG, "Clipboard service started");
     }
